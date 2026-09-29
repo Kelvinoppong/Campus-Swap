@@ -1,0 +1,39 @@
+---
+description: Campus Swap project context — read before writing any code
+alwaysApply: true
+---
+
+# Campus Swap
+
+A student-only marketplace mobile app for anything students buy and sell — consoles, clothing for men and women, dorm gear, bikes, books, beauty, and tickets from campus events to conferences anywhere in the world — with .edu sign-in, real-time chat and meetup proposals. It is a portfolio project, so code quality, tests and a clean architecture matter as much as features.
+
+## Source of truth
+
+- Build plan, stack, data model, API routes and schedule: `docs/BUILD_PLAN.md`
+- Visual design: `design/DESIGN.md` (colors, fonts, spacing, motion) and the six HTML screens in `design/screens/`
+- Photos used in the mockups: `design/images/` (Unsplash, credits in `design/CREDITS.md`)
+
+When building a screen, open the matching HTML file in `design/screens/` and match its layout, colors, type and animations in React Native. Do not copy the HTML/CSS directly; translate it to React Native components.
+
+## Stack (do not swap without asking)
+
+- Monorepo: `apps/mobile` (Expo + Expo Router + TypeScript), `apps/api` (NestJS), `packages/shared` (types, zod schemas)
+- State: TanStack Query for server data, Zustand for small local state
+- API: NestJS + Prisma + PostgreSQL, Socket.IO with Redis adapter, BullMQ worker
+- Images: presigned uploads to S3/R2
+- Auth: .edu email one-time code + JWT access/refresh; tokens in expo-secure-store
+- Animations: react-native-reanimated
+- Tests: Jest + Supertest (API), Maestro (mobile E2E); CI in GitHub Actions
+
+## Conventions
+
+- TypeScript strict mode everywhere; no `any`
+- Money is integer cents (`priceCents`), never floats
+- Categories, conditions, audiences and delivery methods come from `@campus-swap/shared`; never inline a category string in a component or a service
+- Every DB query is scoped by `schoolId`; edits check ownership
+- API routes live under `/v1`
+- Colors and fonts come from `apps/mobile/src/theme.ts` (see design/DESIGN.md), never hard-coded in components
+- Touch targets at least 44px; every icon-only button has an accessibilityLabel
+- Respect the OS reduce-motion setting for all animations
+- Write a test with every API route
+- Work phase by phase in the order in docs/BUILD_PLAN.md; don't start a phase until the previous gate passes

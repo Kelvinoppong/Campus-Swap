@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Swap · Sign in</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&amp;family=DM+Sans:wght@400;500;700&amp;family=Pinyon+Script&amp;display=swap">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#1C1414;color:#FFFFFF}
+a{color:#F8F3EC}a:hover{color:#E8C07A}
+input::placeholder{color:rgba(255,255,255,0.72)}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes kenburns{from{transform:scale(1.06)}to{transform:scale(1.16) translate(-2%,-1%)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>html{background:#2a2222}body{display:flex;justify-content:center;padding:24px 0;min-height:100vh;box-sizing:border-box}</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1C1414; font-family: 'DM Sans', system-ui, sans-serif; color: #FFFFFF">
+<img src="../images/hero.jpg" alt="A smiling student with a backpack and books walking on campus" style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; object-fit: cover; object-position: 30% 20%; animation: kenburns 16s ease-in-out infinite alternate">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,20,20,0.45) 0%, rgba(28,20,20,0) 22%, rgba(110,17,20,0.35) 48%, rgba(110,17,20,0.92) 70%, #6E1114 100%)"></div>
+<header style="position: absolute; left: 0; right: 0; top: 52px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between">
+<div style="font-family: 'Bodoni Moda', Georgia, serif; font-size: 25px; font-weight: 500; letter-spacing: 0.2px">Campus Swap</div>
+<button type="button" aria-label="Menu" style="width: 44px; height: 44px; border: none; background: transparent; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 9h16M8 15h12"></path></svg></button>
+</header>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 0 24px 38px; display: flex; flex-direction: column; gap: 14px">
+<div style="position: relative; height: 150px; animation: rise 0.9s ease 0.2s both">
+<div style="font-family: 'Bodoni Moda', Georgia, serif; font-size: 50px; line-height: 1; font-weight: 500; letter-spacing: -1px">trade the</div>
+<div style="position: absolute; left: 30px; top: 30px; font-family: 'Pinyon Script', cursive; font-size: 96px; line-height: 1.1; color: #FFFFFF">semester</div>
+<div style="position: absolute; right: 8px; bottom: -4px; font-family: 'Pinyon Script', cursive; font-size: 26px; color: #E8C07A">student to student</div>
+</div>
+<p style="margin: 6px 0 0; font-size: 15px; line-height: 1.5; color: rgba(255,255,255,0.88); animation: rise 0.9s ease 0.4s both">Textbooks, dorm finds and tickets from people on your campus.</p>
+<div style="display: flex; flex-direction: column; gap: 8px; animation: rise 0.9s ease 0.55s both">
+<label for="email" style="font-size: 12px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: rgba(255,255,255,0.85)">School email</label>
+<input id="email" type="email" placeholder="you@[yourschool].edu" style="height: 54px; box-sizing: border-box; padding: 0 18px; border: 1px solid rgba(255,255,255,0.5); border-radius: 27px; background: rgba(255,255,255,0.12); font-family: inherit; font-size: 16px; color: #FFFFFF">
+</div>
+<button type="button" style="height: 56px; border: none; border-radius: 28px; background: #F8F3EC; color: #9B1C1F; font-family: inherit; font-size: 16px; font-weight: 700; letter-spacing: 0.3px; animation: rise 0.9s ease 0.7s both">Send sign-in code</button>
+<p style="margin: 0; text-align: center; font-size: 12px; color: rgba(255,255,255,0.8)">Verified .edu students only</p>
+</div>
+</div>
+</body>
+</html>

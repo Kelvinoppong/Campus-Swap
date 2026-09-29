@@ -1,0 +1,351 @@
+// Campus Swap data model.
+//
+// Every row that a student can see carries `schoolId`. That single column is
+// what lets one deployment serve a second campus later without a rewrite, and
+// every query in the API is scoped by it.
+//
+// Money is always integer cents. There is no float anywhere in this schema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  student
+  admin
+}
+
+enum UserStatus {
+  active
+  suspended
+}
+
+/// Deliberately broad: a console, a coat, a mini fridge and a conference pass
+/// all live in the same feed. Mirrors LISTING_CATEGORIES in @campus-swap/shared.
+enum ListingCategory {
+  textbooks
+  tech
+  dorm
+  fashion
+  beauty
+  tickets
+  sports
+  music
+  rides
+  other
+}
+
+enum ListingCondition {
+  like_new
+  good
+  fair
+}
+
+enum ListingStatus {
+  active
+  pending
+  sold
+  removed
+}
+
+/// Campus meetups are the default and the safe path. A conference pass in
+/// another country can only move digitally, hence the other two.
+enum DeliveryMethod {
+  meetup
+  digital
+  shipping
+}
+
+enum MessageType {
+  text
+  meetup_proposal
+  system
+}
+
+enum ReportTargetType {
+  listing
+  user
+  message
+}
+
+enum ReportStatus {
+  open
+  actioned
+  dismissed
+}
+
+enum ReportReason {
+  prohibited_item
+  scam
+  harassment
+  wrong_category
+  spam
+  other
+}
+
+model School {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  /// Gates sign-up: only addresses at this domain can request a code.
+  emailDomain String   @unique @map("email_domain")
+  /// Public, well-lit places the sell form offers as meetup spots.
+  meetupSpots String[] @default([]) @map("meetup_spots")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  users        User[]
+  listings     Listing[]
+  signInCodes  SignInCode[]
+
+  @@map("schools")
+}
+
+model User {
+  id          String     @id @default(uuid()) @db.Uuid
+  schoolId    String     @map("school_id") @db.Uuid
+  email       String     @unique
+  displayName String     @map("display_name")
+  avatarUrl   String?    @map("avatar_url")
+  role        UserRole   @default(student)
+  status      UserStatus @default(active)
+  /// Denormalised from `reviews` so the feed never has to aggregate.
+  ratingAvg   Decimal?   @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount Int        @default(0) @map("rating_count")
+  /// Expo push token for the device that signed in most recently.
+  pushToken   String?    @map("push_token")
+  lastSeenAt  DateTime?  @map("last_seen_at") @db.Timestamptz(3)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school             School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  listings           Listing[]
+  savedListings      SavedListing[]
+  refreshTokens      RefreshToken[]
+  buyerConversations Conversation[] @relation("ConversationBuyer")
+  sellerConversations Conversation[] @relation("ConversationSeller")
+  messages           Message[]
+  reviewsWritten     Review[]       @relation("ReviewAuthor")
+  reviewsReceived    Review[]       @relation("ReviewSubject")
+  reportsFiled       Report[]       @relation("ReportReporter")
+  reportsResolved    Report[]       @relation("ReportResolver")
+  blocksMade         Block[]        @relation("BlockOwner")
+  blocksAgainst      Block[]        @relation("BlockTarget")
+
+  @@index([schoolId, status])
+  @@map("users")
+}
+
+/// A one-time sign-in code. We store an HMAC of the code, never the code
+/// itself, and throw the row away once it is used or expires.
+model SignInCode {
+  id          String    @id @default(uuid()) @db.Uuid
+  schoolId    String    @map("school_id") @db.Uuid
+  email       String
+  codeHash    String    @map("code_hash")
+  attempts    Int       @default(0)
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(3)
+  consumedAt  DateTime? @map("consumed_at") @db.Timestamptz(3)
+  requestIp   String?   @map("request_ip")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([email, createdAt])
+  @@index([expiresAt])
+  @@map("sign_in_codes")
+}
+
+/// One row per device session. Refresh tokens rotate on every use; reusing a
+/// rotated token revokes the whole family, which is how we catch a stolen token.
+model RefreshToken {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  /// Session id shared by every token in one device's rotation chain.
+  familyId    String    @map("family_id") @db.Uuid
+  tokenHash   String    @unique @map("token_hash")
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz(3)
+  replacedById String?  @map("replaced_by_id") @db.Uuid
+  userAgent   String?   @map("user_agent")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, familyId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model Listing {
+  id                  String           @id @default(uuid()) @db.Uuid
+  sellerId            String           @map("seller_id") @db.Uuid
+  schoolId            String           @map("school_id") @db.Uuid
+  title               String
+  description         String           @default("")
+  priceCents          Int              @map("price_cents")
+  /// "$120 at the bookstore" — optional, always higher than priceCents.
+  compareAtPriceCents Int?             @map("compare_at_price_cents")
+  category            ListingCategory
+  condition           ListingCondition
+  deliveryMethod      DeliveryMethod   @default(meetup) @map("delivery_method")
+  /// Null when the item transfers digitally or ships.
+  meetupSpot          String?          @map("meetup_spot")
+  /// Category-dependent extras: brand, size, audience, colour, and the ticket
+  /// event block. JSONB so adding a category later is not a migration.
+  details             Json?
+  status              ListingStatus    @default(active)
+  /// Maintained by a Postgres trigger over title + description; see the
+  /// migration for the trigger and the GIN index.
+  searchVector        Unsupported("tsvector")? @map("search_vector")
+  soldAt              DateTime?        @map("sold_at") @db.Timestamptz(3)
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  seller        User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  school        School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  photos        ListingPhoto[]
+  savedBy       SavedListing[]
+  conversations Conversation[]
+  reviews       Review[]
+
+  /// The feed query: active listings at my school, newest first.
+  @@index([schoolId, status, createdAt(sort: Desc)])
+  @@index([sellerId, status])
+  @@index([category, status])
+  @@map("listings")
+}
+
+model ListingPhoto {
+  id        String   @id @default(uuid()) @db.Uuid
+  listingId String   @map("listing_id") @db.Uuid
+  /// 1200px rendition produced by the worker.
+  url       String
+  /// 400px rendition; null until the resize job finishes.
+  thumbUrl  String?  @map("thumb_url")
+  storageKey String  @map("storage_key")
+  width     Int
+  height    Int
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, position])
+  @@index([listingId])
+  @@map("listing_photos")
+}
+
+model SavedListing {
+  userId    String   @map("user_id") @db.Uuid
+  listingId String   @map("listing_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, listingId])
+  @@index([listingId])
+  @@map("saved_listings")
+}
+
+model Conversation {
+  id            String    @id @default(uuid()) @db.Uuid
+  listingId     String    @map("listing_id") @db.Uuid
+  buyerId       String    @map("buyer_id") @db.Uuid
+  sellerId      String    @map("seller_id") @db.Uuid
+  lastMessageAt DateTime? @map("last_message_at") @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  listing  Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer    User      @relation("ConversationBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller   User      @relation("ConversationSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  /// One thread per buyer per listing, so tapping "Message seller" twice
+  /// reopens the same conversation instead of starting a new one.
+  @@unique([listingId, buyerId])
+  @@index([buyerId, lastMessageAt(sort: Desc)])
+  @@index([sellerId, lastMessageAt(sort: Desc)])
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(uuid()) @db.Uuid
+  conversationId String      @map("conversation_id") @db.Uuid
+  senderId       String      @map("sender_id") @db.Uuid
+  body           String
+  type           MessageType @default(text)
+  /// For `meetup_proposal`: place, at, agreedPriceCents, status.
+  meta           Json?
+  /// Client-generated id, echoed back so an optimistic send can reconcile.
+  clientId       String?     @map("client_id")
+  readAt         DateTime?   @map("read_at") @db.Timestamptz(3)
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  /// Chat history paging.
+  @@index([conversationId, createdAt])
+  @@unique([conversationId, clientId])
+  @@map("messages")
+}
+
+model Review {
+  id         String   @id @default(uuid()) @db.Uuid
+  listingId  String   @map("listing_id") @db.Uuid
+  reviewerId String   @map("reviewer_id") @db.Uuid
+  revieweeId String   @map("reviewee_id") @db.Uuid
+  stars      Int
+  comment    String?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  listing  Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  reviewer User    @relation("ReviewAuthor", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee User    @relation("ReviewSubject", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  /// One review per side per sale.
+  @@unique([listingId, reviewerId])
+  @@index([revieweeId, createdAt(sort: Desc)])
+  @@map("reviews")
+}
+
+model Report {
+  id         String           @id @default(uuid()) @db.Uuid
+  reporterId String           @map("reporter_id") @db.Uuid
+  targetType ReportTargetType @map("target_type")
+  targetId   String           @map("target_id") @db.Uuid
+  reason     ReportReason
+  details    String?
+  status     ReportStatus     @default(open)
+  resolvedById String?        @map("resolved_by_id") @db.Uuid
+  resolvedAt DateTime?        @map("resolved_at") @db.Timestamptz(3)
+  resolutionNote String?      @map("resolution_note")
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  reporter   User  @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  resolvedBy User? @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  /// Stops one person filing the same report over and over.
+  @@unique([reporterId, targetType, targetId])
+  @@index([status, createdAt])
+  @@map("reports")
+}
+
+/// A blocked pair never sees each other's listings and cannot message.
+model Block {
+  ownerId   String   @map("owner_id") @db.Uuid
+  targetId  String   @map("target_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  owner  User @relation("BlockOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  target User @relation("BlockTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@id([ownerId, targetId])
+  @@index([targetId])
+  @@map("blocks")
+}

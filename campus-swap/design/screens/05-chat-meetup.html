@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Swap · Chat</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&amp;family=DM+Sans:wght@400;500;700&amp;family=Pinyon+Script&amp;display=swap">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F8F3EC;color:#1C1414}
+a{color:#9B1C1F}a:hover{color:#6E1114}
+@keyframes rise{from{opacity:0;transform:translateY(12px) scale(0.98)}to{opacity:1;transform:none}}
+@keyframes dot{0%,80%,100%{opacity:0.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>html{background:#2a2222}body{display:flex;justify-content:center;padding:24px 0;min-height:100vh;box-sizing:border-box}</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F8F3EC; font-family: 'DM Sans', system-ui, sans-serif; color: #1C1414">
+<div aria-hidden="true" style="position: absolute; left: -30px; top: 330px; font-family: 'Pinyon Script', cursive; font-size: 200px; line-height: 1; color: #EFE3D4; transform: rotate(-10deg)">deal</div>
+<header style="position: relative; padding: 50px 14px 14px; display: flex; align-items: center; gap: 10px; background: #9B1C1F; color: #FFFFFF">
+<a href="03-listing-detail.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg></a>
+<div style="width: 42px; height: 42px; border-radius: 21px; background: #F8F3EC; color: #9B1C1F; display: flex; align-items: center; justify-content: center; font-family: 'Bodoni Moda', Georgia, serif; font-size: 16px; font-weight: 600">JM</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<div style="font-family: 'Bodoni Moda', Georgia, serif; font-size: 19px; font-weight: 500">Jordan M.</div>
+<div style="font-size: 12px; color: rgba(255,255,255,0.85)">Online now</div>
+</div>
+</header>
+<a href="03-listing-detail.html" style="position: relative; margin: 12px 14px 0; padding: 8px; border-radius: 18px; background: #FFFFFF; display: flex; align-items: center; gap: 12px; text-decoration: none; color: #1C1414; box-shadow: 0 4px 14px rgba(60,20,20,0.08)">
+<img src="../images/books.jpg" alt="Textbook listing photo" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover; object-position: 50% 55%">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Calculus textbook, 8th ed.</span><span style="font-size: 12px; color: #6B5F5C">Listed at $45</span></span>
+<span style="padding: 5px 11px; border-radius: 14px; background: #F4E3E1; font-size: 12px; font-weight: 700; color: #9B1C1F">Offer $40</span>
+</a>
+<main style="position: relative; flex-grow: 1; padding: 16px 14px; display: flex; flex-direction: column; gap: 8px">
+<div style="align-self: center; font-size: 11px; font-weight: 700; letter-spacing: 1.6px; color: #6B5F5C">TODAY</div>
+<div style="align-self: flex-end; max-width: 75%; padding: 10px 15px; border-radius: 20px 20px 4px 20px; background: #9B1C1F; color: #FFFFFF; font-size: 15px; line-height: 1.4; animation: rise 0.4s ease 0.1s both">Hi! Is the calc book still available?</div>
+<div style="align-self: flex-start; max-width: 75%; padding: 10px 15px; border-radius: 20px 20px 20px 4px; background: #FFFFFF; font-size: 15px; line-height: 1.4; animation: rise 0.4s ease 0.3s both">Yes it is. I'm free after 3 most days.</div>
+<div style="align-self: flex-end; max-width: 75%; padding: 10px 15px; border-radius: 20px 20px 4px 20px; background: #9B1C1F; color: #FFFFFF; font-size: 15px; line-height: 1.4; animation: rise 0.4s ease 0.5s both">Would you take $40?</div>
+<div style="align-self: flex-start; max-width: 75%; padding: 10px 15px; border-radius: 20px 20px 20px 4px; background: #FFFFFF; font-size: 15px; line-height: 1.4; animation: rise 0.4s ease 0.7s both">Deal. Sending a meetup time.</div>
+<div style="margin-top: 4px; padding: 16px; border-radius: 22px; background: #1C1414; color: #F8F3EC; display: flex; flex-direction: column; gap: 10px; animation: rise 0.5s ease 0.9s both">
+<div style="font-size: 11px; font-weight: 700; letter-spacing: 1.8px; color: #E8C07A">MEETUP PROPOSED</div>
+<div style="font-family: 'Bodoni Moda', Georgia, serif; font-size: 22px; font-weight: 500">Student Union lobby</div>
+<div style="font-size: 13px; color: rgba(248,243,236,0.8)">Thursday, 3:00 PM · agreed price $40</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="height: 44px; border: none; border-radius: 22px; background: #F8F3EC; color: #9B1C1F; font-family: inherit; font-size: 14px; font-weight: 700">Accept</button>
+<button type="button" style="height: 44px; border: 1px solid rgba(248,243,236,0.5); border-radius: 22px; background: transparent; color: #F8F3EC; font-family: inherit; font-size: 14px">Suggest another</button>
+</div>
+</div>
+<div aria-label="Jordan is typing" style="align-self: flex-start; padding: 12px 15px; border-radius: 20px 20px 20px 4px; background: #FFFFFF; display: flex; gap: 4px; animation: rise 0.4s ease 1.2s both">
+<span style="width: 7px; height: 7px; border-radius: 4px; background: #9B1C1F; animation: dot 1.2s ease-in-out infinite"></span>
+<span style="width: 7px; height: 7px; border-radius: 4px; background: #9B1C1F; animation: dot 1.2s ease-in-out 0.15s infinite"></span>
+<span style="width: 7px; height: 7px; border-radius: 4px; background: #9B1C1F; animation: dot 1.2s ease-in-out 0.3s infinite"></span>
+</div>
+</main>
+<div style="position: relative; padding: 10px 14px 32px; display: flex; gap: 10px; align-items: center; background: #F8F3EC; border-top: 1px solid #E4D8CA">
+<input type="text" aria-label="Message" placeholder="Message Jordan…" style="flex-grow: 1; height: 48px; box-sizing: border-box; padding: 0 18px; border: 1px solid #D8CBBB; border-radius: 24px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #1C1414">
+<button type="button" aria-label="Send" style="width: 48px; height: 48px; border: none; border-radius: 24px; background: #9B1C1F; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 20 4l-6 16-3-7z"></path></svg></button>
+</div>
+</div>
+</body>
+</html>

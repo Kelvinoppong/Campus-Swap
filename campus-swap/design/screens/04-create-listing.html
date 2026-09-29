@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Swap · Create listing</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&amp;family=DM+Sans:wght@400;500;700&amp;family=Pinyon+Script&amp;display=swap">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F8F3EC;color:#1C1414}
+a{color:#9B1C1F}a:hover{color:#6E1114}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fill{from{width:0}to{width:66%}}
+@keyframes drift{0%,100%{transform:translateX(0) rotate(-8deg)}50%{transform:translateX(-16px) rotate(-6deg)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>html{background:#2a2222}body{display:flex;justify-content:center;padding:24px 0;min-height:100vh;box-sizing:border-box}</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F8F3EC; font-family: 'DM Sans', system-ui, sans-serif; color: #1C1414">
+<header style="position: relative; overflow: hidden; padding: 50px 20px 22px; display: flex; flex-direction: column; gap: 14px; background: #9B1C1F; color: #FFFFFF">
+<div aria-hidden="true" style="position: absolute; right: -30px; top: 10px; font-family: 'Pinyon Script', cursive; font-size: 150px; line-height: 1; color: #7E1519; animation: drift 12s ease-in-out infinite">sell</div>
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between">
+<a href="02-home-feed.html" style="min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 500; text-decoration: none; color: rgba(255,255,255,0.9)">Cancel</a>
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 1.6px; color: rgba(255,255,255,0.88)">STEP 2 OF 3</span>
+</div>
+<h1 style="position: relative; margin: 0; font-family: 'Bodoni Moda', Georgia, serif; font-size: 32px; font-weight: 500">List an item</h1>
+<div style="position: relative; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.25); overflow: hidden"><div style="height: 4px; width: 66%; background: #F8F3EC; animation: fill 1s ease 0.2s both"></div></div>
+</header>
+<main style="flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; animation: rise 0.6s ease 0.1s both">
+<div style="height: 110px; border-radius: 16px; overflow: hidden"><img src="../images/books.jpg" alt="Photo 1: textbook stack" style="width: 100%; height: 110px; object-fit: cover; object-position: 50% 55%"></div>
+<div style="height: 110px; border-radius: 16px; overflow: hidden"><img src="../images/books.jpg" alt="Photo 2: close-up of the glasses and cover" style="width: 100%; height: 110px; object-fit: cover; object-position: 50% 20%; transform: scale(1.6)"></div>
+<button type="button" style="height: 110px; border-radius: 16px; border: 1.5px dashed #9B1C1F; background: transparent; color: #9B1C1F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: inherit; font-size: 12px; font-weight: 700"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>Add photo</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; animation: rise 0.6s ease 0.2s both">
+<label for="t" style="font-size: 11px; font-weight: 700; letter-spacing: 1.6px; color: #6B5F5C">TITLE</label>
+<input id="t" type="text" value="Calculus textbook, 8th ed." style="height: 50px; box-sizing: border-box; padding: 0 16px; border: 1px solid #D8CBBB; border-radius: 14px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #1C1414">
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; animation: rise 0.6s ease 0.3s both">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="p" style="font-size: 11px; font-weight: 700; letter-spacing: 1.6px; color: #6B5F5C">PRICE</label>
+<input id="p" type="text" value="$45" style="height: 50px; box-sizing: border-box; padding: 0 16px; border: 1.5px solid #9B1C1F; border-radius: 14px; background: #FFFFFF; font-family: 'Bodoni Moda', Georgia, serif; font-size: 18px; font-weight: 600; color: #9B1C1F">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="c" style="font-size: 11px; font-weight: 700; letter-spacing: 1.6px; color: #6B5F5C">CATEGORY</label>
+<select id="c" style="height: 50px; box-sizing: border-box; padding: 0 12px; border: 1px solid #D8CBBB; border-radius: 14px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #1C1414"><option>Books &amp; Study</option><option>Tech &amp; Gaming</option><option>Dorm &amp; Furniture</option><option>Clothing &amp; Shoes</option><option>Beauty &amp; Care</option><option>Tickets &amp; Events</option><option>Sports &amp; Outdoors</option><option>Music &amp; Instruments</option><option>Bikes &amp; Scooters</option><option>Everything Else</option></select>
+</div>
+</div>
+<fieldset style="margin: 0; padding: 0; border: none; animation: rise 0.6s ease 0.4s both">
+<legend style="padding: 0; margin-bottom: 8px; font-size: 11px; font-weight: 700; letter-spacing: 1.6px; color: #6B5F5C">CONDITION</legend>
+<div style="display: flex; gap: 8px">
+<button type="button" style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid #D8CBBB; background: transparent; font-family: inherit; font-size: 14px; color: #1C1414">Like new</button>
+<button type="button" aria-pressed="true" style="height: 40px; padding: 0 16px; border-radius: 20px; border: none; background: #1C1414; font-family: inherit; font-size: 14px; font-weight: 700; color: #F8F3EC">Good</button>
+<button type="button" style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid #D8CBBB; background: transparent; font-family: inherit; font-size: 14px; color: #1C1414">Fair</button>
+</div>
+</fieldset>
+<div style="display: flex; flex-direction: column; gap: 6px; animation: rise 0.6s ease 0.5s both">
+<label for="m" style="font-size: 11px; font-weight: 700; letter-spacing: 1.6px; color: #6B5F5C">MEETUP SPOT</label>
+<select id="m" style="height: 50px; box-sizing: border-box; padding: 0 12px; border: 1px solid #D8CBBB; border-radius: 14px; background: #FFFFFF; font-family: inherit; font-size: 15px; color: #1C1414"><option>Student Union lobby</option><option>Main library entrance</option><option>Campus police lobby</option></select>
+</div>
+</main>
+<div style="padding: 12px 20px 32px">
+<button type="button" style="width: 100%; height: 56px; border: none; border-radius: 28px; background: #9B1C1F; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 700; letter-spacing: 0.3px">Continue to preview</button>
+</div>
+</div>
+</body>
+</html>

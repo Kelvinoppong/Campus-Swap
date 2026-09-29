@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    # The npm workspace root sits one level below the repository root.
+    working-directory: campus-swap
+
+jobs:
+  verify:
+    name: Lint, type-check, test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: campus-swap/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        # Types in apps/api come from the generated client, so this must run
+        # before the type-check.
+        run: npm run prisma:generate --workspace @campus-swap/api
+
+      - name: Build shared package
+        run: npm run build --workspace @campus-swap/shared
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck --workspaces --if-present
+
+      - name: Unit tests
+        run: npm run test --workspaces --if-present
+
+  database:
+    name: Migrations and integration tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: campus
+          POSTGRES_PASSWORD: campus
+          POSTGRES_DB: campus_swap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U campus"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://campus:campus@localhost:5432/campus_swap?schema=public
+      SHADOW_DATABASE_URL: postgresql://campus:campus@localhost:5432/campus_swap_shadow?schema=public
+      REDIS_URL: redis://localhost:6379
+      NODE_ENV: test
+      PORT: 4000
+      JWT_ACCESS_SECRET: ci-access-secret-ci-access-secret-ci-access
+      JWT_REFRESH_SECRET: ci-refresh-secret-ci-refresh-secret-ci-refre
+      SIGN_IN_CODE_PEPPER: ci-pepper-ci-pepper-ci-pepper-ci-pepper-ci-p
+      ACCESS_TOKEN_TTL: 15m
+      REFRESH_TOKEN_TTL_DAYS: '30'
+      MAIL_DRY_RUN: 'true'
+      MAIL_FROM: Campus Swap <login@campusswap.app>
+      CORS_ORIGINS: '*'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: campus-swap/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build --workspace @campus-swap/shared
+
+      - name: Create shadow database
+        # `migrate diff --from-migrations` replays every migration, so it needs
+        # a throwaway database of its own.
+        run: PGPASSWORD=campus psql -h localhost -U campus -d postgres -c 'CREATE DATABASE campus_swap_shadow;'
+
+      - name: Fail if the schema has drifted from the migrations
+        # Catches a schema.prisma edit that was never turned into a migration.
+        run: >-
+          npx prisma migrate diff
+          --from-migrations prisma/migrations
+          --to-schema-datamodel prisma/schema.prisma
+          --shadow-database-url "$SHADOW_DATABASE_URL"
+          --exit-code
+        working-directory: campus-swap/apps/api
+
+      - name: Apply migrations
+        run: npm run prisma:deploy --workspace @campus-swap/api
+
+      - name: Seed
+        run: npm run db:seed --workspace @campus-swap/api
+
+      - name: Integration tests
+        run: npm run test:e2e --workspace @campus-swap/api
