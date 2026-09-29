@@ -1,7 +1,8 @@
-import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 
 import type { AuthTokens, CurrentUser } from '@campus-swap/shared';
+
+import { tokenStore } from './token-store';
 
 const ACCESS_TOKEN_KEY = 'campus-swap.accessToken';
 const REFRESH_TOKEN_KEY = 'campus-swap.refreshToken';
@@ -9,7 +10,7 @@ const REFRESH_TOKEN_KEY = 'campus-swap.refreshToken';
 interface AuthState {
   user: CurrentUser | null;
   accessToken: string | null;
-  /** False until we have finished reading SecureStore on cold start. */
+  /** False until we have finished reading stored tokens on cold start. */
   ready: boolean;
   /** The address a code was just sent to, carried to the verify screen. */
   pendingEmail: string | null;
@@ -20,9 +21,9 @@ interface AuthState {
 }
 
 /**
- * Tokens live in the device keychain, never in AsyncStorage: a refresh token
- * is a long-lived credential. Only the access token is mirrored in memory so
- * the API client can read it synchronously.
+ * Tokens go through `tokenStore`, which is the device keychain on iOS and
+ * Android. Only the access token is mirrored in memory, so the API client can
+ * read it synchronously.
  */
 export const useAuth = create<AuthState>((set) => ({
   user: null,
@@ -31,25 +32,31 @@ export const useAuth = create<AuthState>((set) => ({
   pendingEmail: null,
 
   restore: async () => {
-    const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
-    set({ accessToken, ready: true });
+    try {
+      const accessToken = await tokenStore.getItem(ACCESS_TOKEN_KEY);
+      set({ accessToken, ready: true });
+    } catch {
+      // A storage read must never strand the app on a blank screen; the worst
+      // case is that the user signs in again.
+      set({ accessToken: null, ready: true });
+    }
   },
 
   setPendingEmail: (email) => set({ pendingEmail: email }),
 
   signIn: async (tokens, user) => {
-    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokens.accessToken);
-    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
+    await tokenStore.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
+    await tokenStore.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
     set({ accessToken: tokens.accessToken, user, pendingEmail: null });
   },
 
   signOut: async () => {
-    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    await tokenStore.deleteItem(ACCESS_TOKEN_KEY);
+    await tokenStore.deleteItem(REFRESH_TOKEN_KEY);
     set({ accessToken: null, user: null, pendingEmail: null });
   },
 }));
 
 export async function readRefreshToken(): Promise<string | null> {
-  return SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+  return tokenStore.getItem(REFRESH_TOKEN_KEY);
 }

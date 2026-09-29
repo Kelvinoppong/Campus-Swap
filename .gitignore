@@ -6,3 +6,6 @@
 .env.local
 .env.*.local
 !.env.example
+
+# Expo web build output
+dist/
