@@ -8,6 +8,7 @@ import { PrismaModule } from './common/prisma/prisma.module';
 import { ENV, loadEnv } from './config/env';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
+import { ListingsModule } from './modules/listings/listings.module';
 
 /**
  * Config is provided as one already-validated object rather than read through
@@ -28,6 +29,7 @@ export class ConfigModule {}
     JwtModule.register({ global: true }),
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 120 }]),
     AuthModule,
+    ListingsModule,
     HealthModule,
   ],
   providers: [

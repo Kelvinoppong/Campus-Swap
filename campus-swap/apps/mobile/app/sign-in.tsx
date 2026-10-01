@@ -23,6 +23,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { requestSignInCode } from '@/api/auth';
+import { ApiError } from '@/api/client';
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
 import { Rise } from '@/components/Rise';
@@ -38,6 +40,7 @@ export default function SignInScreen() {
 
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // kenburns: a slow, endless 1.06 -> 1.16 push on the hero photo.
   const zoom = useSharedValue(1.06);
@@ -52,14 +55,25 @@ export default function SignInScreen() {
 
   const heroStyle = useAnimatedStyle(() => ({ transform: [{ scale: zoom.value }] }));
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const parsed = eduEmailSchema.safeParse(email);
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? 'Enter your school email');
       return;
     }
+
     setError(null);
-    router.push({ pathname: '/verify', params: { email: parsed.data } });
+    setSubmitting(true);
+    try {
+      await requestSignInCode(parsed.data);
+      router.push({ pathname: '/verify', params: { email: parsed.data } });
+    } catch (cause) {
+      setError(
+        cause instanceof ApiError ? cause.message : 'Could not send the code. Try again.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -128,7 +142,9 @@ export default function SignInScreen() {
                 setEmail(next);
                 if (error) setError(null);
               }}
-              onSubmitEditing={handleSubmit}
+              onSubmitEditing={() => {
+                void handleSubmit();
+              }}
               placeholder="you@yourschool.edu"
               placeholderTextColor="rgba(255,255,255,0.72)"
               keyboardType="email-address"
@@ -146,7 +162,14 @@ export default function SignInScreen() {
           </Rise>
 
           <Rise delay={700} duration={900} distance={20}>
-            <Button label="Send sign-in code" variant="ivory" onPress={handleSubmit} />
+            <Button
+              label="Send sign-in code"
+              variant="ivory"
+              loading={submitting}
+              onPress={() => {
+                void handleSubmit();
+              }}
+            />
           </Rise>
 
           <Text style={styles.footnote}>Verified .edu students only</Text>

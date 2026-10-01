@@ -12,11 +12,12 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { verifySignInCode } from '@/api/auth';
+import { ApiError } from '@/api/client';
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
 import { Rise } from '@/components/Rise';
 import { ScriptWatermark } from '@/components/ScriptWatermark';
-import { demoSession } from '@/data/demo-session';
 import { useAuth } from '@/state/auth';
 import { colors, fonts, layout, type } from '@/theme';
 
@@ -40,12 +41,17 @@ export default function VerifyScreen() {
     }
     setSubmitting(true);
     setError(null);
-    // Weeks 1–2 placeholder: the real call is POST /v1/auth/verify-code, which
-    // lands with the API in the next pass. The screen and the store are final.
-    const { tokens, user } = demoSession(email ?? 'you@yourschool.edu');
-    await signIn(tokens, user);
-    setSubmitting(false);
-    router.replace('/(tabs)');
+    try {
+      const session = await verifySignInCode(email ?? '', code);
+      await signIn(session);
+      router.replace('/(tabs)');
+    } catch (cause) {
+      setError(cause instanceof ApiError ? cause.message : 'Could not verify that code.');
+      // Clearing lets the user retype without deleting six digits by hand.
+      setCode('');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
