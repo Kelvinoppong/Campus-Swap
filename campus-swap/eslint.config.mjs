@@ -70,6 +70,14 @@ export default tseslint.config(
     },
   },
   {
+    // These are operator-facing command line tools; printing is their output,
+    // not a leftover debug statement.
+    files: ['apps/api/scripts/**/*.ts', 'apps/api/prisma/seed.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     files: ['**/*.test.ts', '**/*.spec.ts', '**/test/**/*.ts'],
     languageOptions: {
       globals: { ...globals.jest },

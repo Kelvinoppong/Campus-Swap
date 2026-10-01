@@ -230,6 +230,11 @@ model ListingPhoto {
   width     Int
   height    Int
   position  Int
+  /// CLIP image embedding, L2-normalised so pgvector's `<=>` is cosine
+  /// distance. Null until the embedding job has processed this photo, which is
+  /// why every similarity query filters on `embedding IS NOT NULL`.
+  embedding Unsupported("vector(512)")?
+  embeddedAt DateTime? @map("embedded_at") @db.Timestamptz(3)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)

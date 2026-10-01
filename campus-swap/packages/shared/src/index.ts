@@ -3,6 +3,7 @@ export * from './pagination';
 export * from './money';
 export * from './auth';
 export * from './listings';
+export * from './discovery';
 export * from './uploads';
 export * from './chat';
 export * from './socket';

@@ -7,6 +7,7 @@ import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { ENV, loadEnv } from './config/env';
 import { AuthModule } from './modules/auth/auth.module';
+import { DiscoveryModule } from './modules/discovery/discovery.module';
 import { HealthModule } from './modules/health/health.module';
 import { ListingsModule } from './modules/listings/listings.module';
 
@@ -30,6 +31,7 @@ export class ConfigModule {}
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 120 }]),
     AuthModule,
     ListingsModule,
+    DiscoveryModule,
     HealthModule,
   ],
   providers: [
